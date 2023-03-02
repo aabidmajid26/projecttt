@@ -44,10 +44,10 @@ class FeatureExtractor():
       cropped_image = np.tile(cropped_image[:, :, np.newaxis], (1, 1, 3))
     preprocessed_image = self.transformer.preprocess('data', cropped_image)
     if verbose:
-      print 'Preprocessed image has shape %s, range (%f, %f)' % \
+      print('Preprocessed image has shape %s, range (%f, %f)' % \
           (preprocessed_image.shape,
            preprocessed_image.min(),
-           preprocessed_image.max())
+           preprocessed_image.max()))
     return preprocessed_image
 
   def image_to_feature(self, image, output_name='fc7'):
@@ -73,9 +73,9 @@ class FeatureExtractor():
       for batch_index, image_path in enumerate(batch_list):
         batch[batch_index:(batch_index + 1)] = self.preprocess_image(image_path)
       current_batch_size = min(batch_size, len(image_list) - batch_start_index)
-      print 'Computing features for images %d-%d of %d' % \
+      print('Computing features for images %d-%d of %d' % \
           (batch_start_index, batch_start_index + current_batch_size - 1,
-           len(image_list))
+           len(image_list)))
       self.image_net.forward(data=batch)
       features[batch_start_index:(batch_start_index + current_batch_size)] = \
           self.image_net.blobs[output_name].data[:current_batch_size]

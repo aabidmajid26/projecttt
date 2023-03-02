@@ -36,7 +36,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     self.vid_framefeats = {} # listofdict [{}]
     
     for framefeatfile, sentfile in filenames:
-      print 'Reading frame features from file: %s' % framefeatfile
+      print('Reading frame features from file: %s' % framefeatfile)
       total_counter = 0
       with open(framefeatfile, 'rb') as featfd:
         # each line has the fc7 for 1 frame in video
@@ -66,7 +66,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         
 
       # reset max_words based on maximum frames in the video
-      print 'Reading sentences in: %s' % sentfile
+      print('Reading sentences in: %s' % sentfile)
       with open(sentfile, 'r') as sentfd:
         for line in sentfd:
           line = line.strip()
@@ -76,7 +76,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
             continue
           self.lines.append((id_sent[0], id_sent[1]))
       if num_empty_lines > 0:
-        print 'Warning: ignoring %d empty lines.' % num_empty_lines
+        print('Warning: ignoring %d empty lines.' % num_empty_lines)
     self.line_index = 0
     self.num_resets = 0
     self.num_truncates = 0
@@ -111,7 +111,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     return self.num_resets > 0
 
   def init_vocabulary(self, vocab_filename):
-    print "Initializing the vocabulary from {0}.".format(vocab_filename)
+    print("Initializing the vocabulary from {0}.".format(vocab_filename))
     if os.path.isfile(vocab_filename):
       with open(vocab_filename, 'rb') as vocab_file:
         self.init_vocab_from_file(vocab_file)
@@ -126,7 +126,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     for line in vocab_filedes.readlines():
       split_line = line.split()
       word = split_line[0]
-      print word
+      print(word)
       if word == UNK_IDENTIFIER:
         continue
       else:
@@ -141,7 +141,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     assert len(self.vocabulary_inverted) == num_words_vocab
 
   def init_vocabulary_from_data(self, vocab_filename):
-    print 'Initializing the vocabulary from full data'
+    print('Initializing the vocabulary from full data')
     assert len(self.lines) > 0
     # initialize the vocabulary with the UNK word if new
     self.vocabulary = {UNK_IDENTIFIER: 0}
@@ -167,30 +167,29 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     assert len(self.vocab_counts) == num_words_vocab
     assert len(self.vocabulary_inverted) == num_words_vocab
     if self.vocab_counts[self.vocabulary[UNK_IDENTIFIER]] == 0:
-      print 'Warning: the count for the UNK identifier "%s" was 0.' % UNK_IDENTIFIER
+      print('Warning: the count for the UNK identifier "%s" was 0.' % UNK_IDENTIFIER)
 
   def dump_vocabulary(self, vocab_filename):
-    print 'Dumping vocabulary to file: %s' % vocab_filename
+    print('Dumping vocabulary to file: %s' % vocab_filename)
     with open(vocab_filename, 'wb') as vocab_file:
       for word in self.vocabulary_inverted:
         vocab_file.write('%s\n' % word)
-    print 'Done.'
-
+    print('Done.')
   def dump_video_file(self, vidid_order_file, frame_seq_label_file):
-    print 'Dumping vidid order to file: %s' % vidid_order_file
+    print('Dumping vidid order to file: %s' % vidid_order_file)
     with open(vidid_order_file,'wb') as vidid_file:
       for vidid, line in self.lines:
         word_count = len(line.split())
         frame_count = len(self.vid_framefeats[vidid])
         total_count = word_count + frame_count
         vidid_file.write('%s\t%d\t%d\t%d\n' % (vidid, word_count, frame_count, total_count))
-    print 'Done.' 
+    print('Done.')
 
   def next_line(self):
     num_lines = float(len(self.lines))
     if self.line_index == 1 or self.line_index == num_lines or self.line_index % 10000 == 0:
-      print 'Processed %d/%d (%f%%) lines' % (self.line_index, num_lines,
-                                              100 * self.line_index / num_lines)
+      print('Processed %d/%d (%f%%) lines' % (self.line_index, num_lines,
+                                              100 * self.line_index / num_lines))
     self.line_index += 1
     if self.line_index == num_lines:
       self.line_index = 0
@@ -341,17 +340,17 @@ def generate_hd5(scriptname, argv):
   try:
     opts, args = getopt.getopt(argv,'hb:s:l:d:f:w:m:rp')
   except getopt.GetoptError:
-    print "Usage:"
-    print usage
-    print "Default values:"
-    print default_values
+    print("Usage:")
+    print(usage)
+    print("Default values:")
+    print(default_values)
     sys.exit(2)
   for opt, arg in opts:
     if opt == '-h':
-      print "Usage:"
-      print usage
-      print "Default values:"
-      print default_values
+      print("Usage:")
+      print(usage)
+      print("Default values:")
+      print(default_values)
       sys.exit()
     elif opt in ('-b'):
       buffer_size = int(arg)
@@ -406,7 +405,7 @@ def generate_hd5(scriptname, argv):
     writer.write_to_exhaustion()
     writer.write_filelists()
     if not os.path.isfile(vocab_filename):
-      print "Vocabulary not found"
+      print("Vocabulary not found")
       # fsg.dump_vocabulary(vocab_out_path)
     if not os.path.isfile(vocab_filename):
       fsg.dump_vocabulary(vocab_filename)

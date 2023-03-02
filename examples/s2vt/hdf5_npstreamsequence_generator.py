@@ -129,7 +129,7 @@ class HDF5SequenceWriter():
       if self.verbose:
         for s in range(self.generator.batch_num_streams):
           stream = np.array(self.generator.streams[s][key])
-          print 'batch %d, stream %s, index %d: ' % (batch_index, key, s), stream
+          print('batch %d, stream %s, index %d: ' % (batch_index, key, s), stream)
       h5dataset = h5file.create_dataset(key, shape=batch.shape, dtype=batch.dtype)
       h5dataset[:] = batch
     h5file.close()
