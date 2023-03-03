@@ -4,7 +4,7 @@
 
 echo "Downloading MSVD video features [~1.2GB] ..."
 
-DIR="./data"
+DIR="/content/drive/MyDrive/Data"
 if [ ! -d "$DIR" ]; then
     mkdir $DIR
 fi

@@ -32,7 +32,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     self.vid_framefeats = {} # listofdict [{}]
     for framefeatfile, sentfile in filenames:
       print('Reading frame features from file: %s' % framefeatfile)
-      with open(framefeatfile, 'rb') as featfd:
+      with open(framefeatfile, 'r+') as featfd:
         # each line has the fc7 for 1 frame in video
         pool_csv = csv.reader(featfd)
         pool_csv = list(pool_csv)
@@ -112,9 +112,9 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
       self.vocabulary[word] = len(self.vocabulary_inverted)
       self.vocabulary_inverted.append(word)
     num_words_vocab = len(self.vocabulary.keys())
-    print ('Initialized vocabulary from file with %d unique words ' +
-           '(from %d total words in dataset).' % \
-          (num_words_vocab, num_words_dataset))
+    # print ('Initialized vocabulary from file with %d unique words ' +
+    #        '(from %d total words in dataset).' % \
+    #       (num_words_vocab, num_words_dataset))
     assert len(self.vocabulary_inverted) == num_words_vocab
 
   def init_vocabulary_from_data(self, vocab_filename):
@@ -139,8 +139,8 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
           self.vocab_counts.append(1)
           
     num_words_vocab = len(self.vocabulary.keys())
-    print('Initialized the vocabulary from data with %d unique words ' +
-           '(from %d total words in dataset).' % (num_words_vocab, num_words_dataset))
+    # print('Initialized the vocabulary from data with %d unique words ' +
+    #        '(from %d total words in dataset).' % (num_words_vocab, num_words_dataset))
     assert len(self.vocab_counts) == num_words_vocab
     assert len(self.vocabulary_inverted) == num_words_vocab
     if self.vocab_counts[self.vocabulary[UNK_IDENTIFIER]] == 0:
@@ -233,10 +233,11 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     out['frame_fc7'] = []
     for frame_feat in feats_vgg_fc7[:num_frames]:
       feat_fc7 = self.float_line_to_stream(frame_feat)
-      out['frame_fc7'].append(np.array(feat_fc7).reshape(1, len(feat_fc7)))
+      print('feat_fc7:::::', list(feat_fc7))
+      out['frame_fc7'].append(np.array(list(feat_fc7)).reshape(1, len(list(feat_fc7))))
     # pad last frame for the length of the sentence
     num_img_pads = len(out['input_sentence']) - num_frames
-    zero_padding = np.zeros(len(feat_fc7)).reshape(1, len(feat_fc7))
+    zero_padding = np.zeros(len(list(feat_fc7))).reshape(1, len(list(feat_fc7)))
     for padframe in range(num_img_pads):
       out['frame_fc7'].append(zero_padding)
     assert len(out['frame_fc7'])==len(out['input_sentence'])
@@ -244,9 +245,9 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     return out
 
 
-# BUFFER_SIZE = 1 # TEXT streams
+BUFFER_SIZE = 1 # TEXT streams
 # BUFFER_SIZE = 32 # Use this if you have ~11GB in GPU.
-BUFFER_SIZE = 16 # Requires ~6GB GPU.
+# BUFFER_SIZE = 16 # Requires ~6GB GPU.
 BATCH_STREAM_LENGTH = 1000
 SETTING = '.'
 OUTPUT_DIR = '{0}/hdf5/buffer_{1}_s2vt_{2}'.format(SETTING, BUFFER_SIZE, MAX_WORDS)

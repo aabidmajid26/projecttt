@@ -35,7 +35,7 @@ class SequenceGenerator():
     if self.streams[stream_index] is None:
       self.streams[stream_index] = {}
     stream_length = len(streams[stream_names[0]])
-    for k, v in streams.iteritems():
+    for k, v in list(streams.items()):
       if isinstance(v, np.ndarray):
         assert stream_length == v.shape[0]
       else:
@@ -55,7 +55,7 @@ class SequenceGenerator():
     batch = {}
     batch_indicators = np.zeros((self.batch_stream_length, self.batch_num_streams))
     for name in self.substream_names:
-      if name in self.array_type_inputs.keys():
+      if name in list(self.array_type_inputs.keys()):
         dim = self.array_type_inputs[name]
         batch[name] = self.get_pad_value(name) * np.ones((self.batch_stream_length, self.batch_num_streams, dim))
       else:
@@ -79,12 +79,16 @@ class SequenceGenerator():
               continue
           # import pdb; pdb.set_trace()
           for name in self.substream_names:
+            print("self.streams:::::======", self.streams)
+            print("batch:::---", batch[name][t, i])
+            print("self.stream so on so on:::--", self.streams[i][name][self.stream_indices[i]])
+            print(name, t, i)
             if isinstance(self.streams[i][name], np.ndarray) and self.streams[i][name].ndim > 1:
               batch[name].resize((batch_size, self.streams[i][name].shape[1],1))
               batch[name][(t*self.batch_num_streams + i), :,0] = self.streams[i][name][self.stream_indices[i],:]
-            elif name in self.array_type_inputs.keys():
+            elif self.streams[i][name][self.stream_indices[i]] and name in list(self.array_type_inputs.keys()):
               batch[name][t, i] = self.streams[i][name][self.stream_indices[i]][0,:]
-            else:
+            elif self.streams[i][name][self.stream_indices[i]]:
               batch[name][t, i] = self.streams[i][name][self.stream_indices[i]]
           batch_indicators[t, i] = 0 if self.stream_indices[i] == 0 else 1
           self.stream_indices[i] += 1
@@ -92,8 +96,8 @@ class SequenceGenerator():
             num_completed_streams += 1
         if not exhausted[i]: all_exhausted = False
       if all_exhausted and truncate_at_exhaustion:
-        print ('Exhausted all data; cutting off batch at timestep %d ' +
-               'with %d streams completed') % (t, num_completed_streams)
+        print(('Exhausted all data; cutting off batch at timestep %d ' +
+               'with %d streams completed') % (t, num_completed_streams))
         for name in self.substream_names:
           batch[name] = batch[name][:t, :]
         batch_indicators = batch_indicators[:t, :]
@@ -125,11 +129,11 @@ class HDF5SequenceWriter():
     dataset[:] = cont_indicators
     dataset = h5file.create_dataset('buffer_size', shape=(1,), dtype=np.int)
     dataset[:] = self.generator.batch_num_streams
-    for key, batch in batch_comps.iteritems():
+    for key, batch in batch_comps.items():
       if self.verbose:
         for s in range(self.generator.batch_num_streams):
           stream = np.array(self.generator.streams[s][key])
-          print('batch %d, stream %s, index %d: ' % (batch_index, key, s), stream)
+          print(('batch %d, stream %s, index %d: ' % (batch_index, key, s), stream))
       h5dataset = h5file.create_dataset(key, shape=batch.shape, dtype=batch.dtype)
       h5dataset[:] = batch
     h5file.close()
@@ -144,3 +148,4 @@ class HDF5SequenceWriter():
     with open(filelist_filename, 'w') as listfile:
       for filename in self.filenames:
         listfile.write('%s\n' % filename)
+
